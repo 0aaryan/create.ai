@@ -1,0 +1,13 @@
+google-api-core
+google-auth
+google-cloud-speech
+google-cloud-texttospeech
+googleapis-common-protos
+langchain
+moviepy
+openai
+opencv-python
+pydantic
+python-dotenv
+youtube-search-python
+youtube-transcript-api
