@@ -1,16 +1,18 @@
 import os
 from google.cloud import speech
 from google.cloud import texttospeech as tts
+from google.oauth2 import service_account
 
 class AudioGenerator:
-    def __init__(self, gcp_credentials_path):
+    def __init__(self, credentials_json):
         """
         Initialize the SpeechProcessor with Google Cloud credentials.
 
         Args:
             gcp_credentials_path (str): Path to the Google Cloud credentials JSON file.
         """
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = gcp_credentials_path
+        # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = gcp_credentials_path  
+        self.credentials = service_account.Credentials.from_service_account_info(credentials_json)
 
     def  generate_transcript(self, speech_file_path):
         """
@@ -24,7 +26,7 @@ class AudioGenerator:
         """
         try:
             # Create a Google Cloud Speech-to-Text client
-            client = speech.SpeechClient()
+            client = speech.SpeechClient(credentials=self.credentials)
 
             # Read the audio file
             with open(speech_file_path, "rb") as audio_file:
@@ -84,7 +86,7 @@ class AudioGenerator:
                 audio_encoding=tts.AudioEncoding.LINEAR16, speaking_rate=0.9, pitch=-10.0
             )
 
-            client = tts.TextToSpeechClient()
+            client = tts.TextToSpeechClient(credentials=self.credentials)
             response = client.synthesize_speech(
                 input=text_input,
                 voice=voice_params,

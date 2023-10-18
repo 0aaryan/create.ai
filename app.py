@@ -97,7 +97,8 @@ def generate_audio_section():
     if st.button("Generate Audio"):
         with st.spinner("Generating audio..."):
             try:
-                audio_path = OUTPUT_DIR + "audio.mp3"
+                # audio_path = OUTPUT_DIR + "audio.mp3"
+                audio_path = tempfile.NamedTemporaryFile(delete=False).name
                 transcript = generate_audio_from_script(script,output_path=audio_path)
                 st.session_state["transcript"] = transcript
                 st.session_state["audio"] = audio_path
@@ -224,7 +225,8 @@ def subtitle_options_section():
         if st.button("Generate Sample Video"):
             with st.spinner("Generating sample video..."):
                 try:
-                    video_path = OUTPUT_DIR + "video.mp4"
+                    # video_path = OUTPUT_DIR + "video.mp4"
+                    video_path = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4').name
                     subtitle_options = st.session_state["subtitle_options"]
                     generate_short_video(
                         audio_path=st.session_state["audio"],
@@ -243,7 +245,8 @@ def subtitle_options_section():
         if st.button("Generate Full Video"):
             with st.spinner("Generating video..."):
                 try:
-                    video_path = OUTPUT_DIR + "video.mp4"
+                    # video_path = OUTPUT_DIR + "video.mp4"
+                    video_path = tempfile.NamedTemporaryFile(delete=False).name
                     subtitle_options = st.session_state["subtitle_options"]
                     generate_short_video(
                         audio_path=st.session_state["audio"],

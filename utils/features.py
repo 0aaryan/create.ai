@@ -9,6 +9,9 @@ import os
 import json
 
 
+
+
+
 load_dotenv()
 
 
@@ -31,7 +34,21 @@ def generate_script_from_transcript(category,sample_transcripts,num_of_scripts =
 
 
 def generate_audio_from_script(script,output_path):
-    audio_generator = AudioGenerator(gcp_credentials_path='./.credentials/gcp.json')
+    gcp_credentials = {
+        "type": os.environ.get("GCP_TYPE"),
+        "project_id": os.environ.get("GCP_PROJECT_ID"),
+        "private_key_id": os.environ.get("GCP_PRIVATE_KEY_ID"),
+        "private_key": os.environ.get("GCP_PRIVATE_KEY"),
+        "client_email": os.environ.get("GCP_CLIENT_EMAIL"),
+        "client_id": os.environ.get("GCP_CLIENT_ID"),
+        "auth_uri": os.environ.get("GCP_AUTH_URI"),
+        "token_uri": os.environ.get("GCP_TOKEN_URI"),
+        "auth_provider_x509_cert_url": os.environ.get("GCP_AUTH_PROVIDER_X509_CERT_URL"),
+        "client_x509_cert_url": os.environ.get("GCP_CLIENT_X509_CERT_URL"),
+        "universe_domain": os.environ.get("GCP_UNIVERSE_DOMAIN")
+    }
+
+    audio_generator = AudioGenerator(credentials_json=gcp_credentials)
     audio_generator.generate_audio(script,output_file_path=output_path)
     transcript = audio_generator.generate_transcript(output_path)
     return transcript
