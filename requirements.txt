@@ -1,4 +1,3 @@
-opencv-python
 google-api-core
 google-auth
 google-cloud-speech
@@ -11,3 +10,5 @@ pydantic
 python-dotenv
 youtube-search-python
 youtube-transcript-api
+opencv-python
+Pillow==9.5.0
