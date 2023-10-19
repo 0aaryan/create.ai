@@ -3,6 +3,17 @@ from utils.features import generate_script_from_transcript, get_transcript_from_
 from traceback import print_exc
 import tempfile
 import os
+
+
+
+
+st.set_page_config(
+    page_title="CREATE.AI",
+    page_icon="🎥",
+)
+
+
+
 # Define constants
 STEPS = {
     1: "Sample Scripts",
@@ -25,6 +36,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 def init_session_state():
     for var in SESSION_STATE_VARS:
