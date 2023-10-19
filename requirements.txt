@@ -1,3 +1,4 @@
+opencv-python
 google-api-core
 google-auth
 google-cloud-speech
@@ -6,7 +7,6 @@ googleapis-common-protos
 langchain
 moviepy
 openai
-opencv-python
 pydantic
 python-dotenv
 youtube-search-python
