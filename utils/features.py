@@ -7,7 +7,7 @@ from utils.videoGenerator import VideoGenerator
 from dotenv import load_dotenv
 import os
 import json
-
+import tempfile
 
 
 
@@ -150,7 +150,7 @@ def generate_short_video(
         sample_video = False,
     ):
         # Generate the video
-
+        magick_binary = os.path.abspath(magick_binary)
         transcript_json = subtitle_options.get("transcript_json", None)
         screen_size = subtitle_options.get("screen_size", (720 /16 * 9 , 720))
         font_size = subtitle_options.get("font_size", 35)
