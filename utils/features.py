@@ -135,6 +135,7 @@ def apply_filter_to_video(
 
 
 def get_font_list(magick_binary="./utils/magick"):
+    magick_binary = os.path.abspath(magick_binary)
     video_generator = VideoGenerator(magick_binary=magick_binary)
     return video_generator.get_font_list()
 
