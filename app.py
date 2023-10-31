@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.features import generate_script_from_transcript, get_transcript_from_channel , generate_audio_from_script, generate_short_video
+from utils.features import generate_script_from_transcript, get_transcript_from_channel , generate_audio_from_script, generate_short_video,get_font_list
 from traceback import print_exc
 import tempfile
 import os
@@ -22,6 +22,8 @@ STEPS = {
     4: "Background Video",
 }
 
+FONT_LIST = get_font_list()
+
 SESSION_STATE_VARS = ['sample_scripts', 'generated_scripts','transcript','audio','bg_video','subtitle_options','prompt']
 OUTPUT_DIR = './output/'
 if not os.path.exists(OUTPUT_DIR):
@@ -36,6 +38,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 def init_session_state():
@@ -144,50 +147,55 @@ def background_video_section():
         if st.session_state["bg_video"] != "":
             st.video(st.session_state["bg_video"])
 
+
+
+
+# def subtitle_options_section():
+#     st.title("Step 6: Subtitle Options")
+#     st.subheader("Customize Subtitle Settings")
+#     st.video(st.session_state["bg_video"])
+#     col1, col2 = st.columns(2)
+#     with col1:
+#         st.subheader("Font Settings")
+#         font_size = st.number_input("Font Size", min_value=1, value=35, step=1)
+#         font_color = st.color_picker("Font Color", "#FFFFFF")
+#         st.text("Selected Font Color Hex Code: " + font_color)
+#         stroke_color = st.color_picker("Stroke Color", "#000000")
+#         st.text("Selected Stroke Color Hex Code: " + stroke_color)
+#         stroke_width = st.number_input("Stroke Width", min_value=0, value=0, step=1)
+#         font = st.text_input("Font (e.g., Liberation-Mono-Bold)", "Liberation-Mono-Bold")
+
+
+#     with col2:
+#         st.subheader("Position Settings")
+#         position_x = st.selectbox("Horizontal Position", ["left", "center", "right"], index=1)
+#         position_y = st.selectbox("Vertical Position", ["top", "center", "bottom"], index=1)
+#         words_per_line = st.number_input("Words Per Line", min_value=1, value=3, step=1)
+
+#     # Save the selected subtitle options to the session state
+#     st.session_state["subtitle_options"] = {
+#         "font_size": font_size,
+#         "font_color": font_color,
+#         "stroke_color": stroke_color,
+#         "stroke_width": stroke_width,
+#         "font": font,
+#         "position_x": position_x,
+#         "position_y": position_y,
+#         "words_per_line": words_per_line,
+#     }
+
 def subtitle_options_section():
     st.title("Step 5: Subtitle Options")
     st.subheader("Customize Subtitle Settings")
-    st.video(st.session_state["bg_video"])
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Font Settings")
-        font_size = st.number_input("Font Size", min_value=1, value=35, step=1)
-        font_color = st.color_picker("Font Color", "#FFFFFF")
-        st.text("Selected Font Color Hex Code: " + font_color)
-        stroke_color = st.color_picker("Stroke Color", "#000000")
-        st.text("Selected Stroke Color Hex Code: " + stroke_color)
-        stroke_width = st.number_input("Stroke Width", min_value=0, value=0, step=1)
-        font = st.text_input("Font (e.g., Liberation-Mono-Bold)", "Liberation-Mono-Bold")
-
-
-    with col2:
-        st.subheader("Position Settings")
-        position_x = st.selectbox("Horizontal Position", ["left", "center", "right"], index=1)
-        position_y = st.selectbox("Vertical Position", ["top", "center", "bottom"], index=1)
-        words_per_line = st.number_input("Words Per Line", min_value=1, value=3, step=1)
-
-    # Save the selected subtitle options to the session state
-    st.session_state["subtitle_options"] = {
-        "font_size": font_size,
-        "font_color": font_color,
-        "stroke_color": stroke_color,
-        "stroke_width": stroke_width,
-        "font": font,
-        "position_x": position_x,
-        "position_y": position_y,
-        "words_per_line": words_per_line,
-    }
-
-def subtitle_options_section():
-    st.title("Step 5: Subtitle Options")
-    st.subheader("Customize Subtitle Settings")
 
     col1, col2 = st.columns(2)
 
     with col1:
         st.subheader("Font Settings")
 
-        font = st.text_input("Font", "Liberation-Mono-Bold")
+        # font = st.text_input("Font", "Liberation-Mono-Bold")
+
+        font = st.selectbox("Font", FONT_LIST, index=0)
 
 
         font_size = st.slider("Font Size", min_value=1, max_value=100, value=35, step=1)
@@ -208,7 +216,6 @@ def subtitle_options_section():
 
 
 
-
         # font = st.text_input("Font (e.g., Liberation-Mono-Bold)", "Liberation-Mono-Bold")
 
     with col2:
@@ -217,7 +224,23 @@ def subtitle_options_section():
         position_y = st.selectbox("Vertical Position", ["top", "center", "bottom"], index=1)
         words_per_line = st.slider("Words Per Line", min_value=1, max_value=10, value=3, step=1)
     
-    
+    #apply filter checkbox , filter color and transparency
+    st.markdown("---")
+    st.subheader("Apply Filter")
+    apply_filter = st.checkbox("Apply Filter")
+    if apply_filter:
+        filter_color = st.color_picker("Filter Color", "#000000")
+        transparency = st.slider("Transparency", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
+        st.session_state["filter_color"] = filter_color
+        st.session_state["transparency"] = transparency
+    else:
+        st.session_state["filter_color"] = ""
+        st.session_state["transparency"] = 0.0
+
+
+
+
+
     # Save the selected subtitle options to the session state
     st.session_state["subtitle_options"] = {
         "transcript_json": st.session_state["transcript"],
@@ -229,6 +252,8 @@ def subtitle_options_section():
         "position_x": position_x,
         "position_y": position_y,
         "words_per_line": words_per_line,
+        "filter_color": st.session_state["filter_color"],
+        "filter_transparency": st.session_state["transparency"],
     }
     st.markdown("---")
     # Add a button to generate a sample video
@@ -258,7 +283,8 @@ def subtitle_options_section():
             with st.spinner("Generating video..."):
                 try:
                     # video_path = OUTPUT_DIR + "video.mp4"
-                    video_path = tempfile.NamedTemporaryFile(delete=False).name
+                    # video_path = tempfile.NamedTemporaryFile(delete=False).name
+                    video_path = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4').name
                     subtitle_options = st.session_state["subtitle_options"]
                     generate_short_video(
                         audio_path=st.session_state["audio"],

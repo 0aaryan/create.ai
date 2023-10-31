@@ -55,6 +55,90 @@ def generate_audio_from_script(script,output_path):
 
 
 
+
+
+
+def generate_short_video(
+        audio_path,
+        video_path,
+        output_path,
+        subtitle_options,
+        magick_binary="./utils/magick",
+        add_audio=True,
+        add_subtitles=True,
+        sample_video = False,
+    ):
+        # Generate the video
+        magick_binary = os.path.abspath(magick_binary)
+        transcript_json = subtitle_options.get("transcript_json", None)
+        screen_size = subtitle_options.get("screen_size", (720 /16 * 9 , 720))
+        font_size = subtitle_options.get("font_size", 35)
+        font_color = subtitle_options.get("font_color", "#FFFFFF")
+        stroke_color = subtitle_options.get("stroke_color", "#000000")
+        stroke_width = subtitle_options.get("stroke_width", 0)
+        font = subtitle_options.get("font", "Liberation-Mono-Bold")
+        position_x = subtitle_options.get("position_x", "center")
+        position_y = subtitle_options.get("position_y", "center")
+        words_per_line = subtitle_options.get("words_per_line", 3)
+        filter_color = subtitle_options.get("filter_color", "#000000")
+        filter_transparency = subtitle_options.get("filter_transparency",0)
+
+        fps = 24
+        if sample_video:
+            #transcript = only words_per_line words for sample video
+            transcript_json = transcript_json[:words_per_line]
+            fps = 1
+
+        video_generator = VideoGenerator(magick_binary=magick_binary)
+        subtitles = video_generator.generate_subtitle(
+            transcript_json=transcript_json,
+            screen_size=screen_size,
+            font_size=font_size,
+            font_color=font_color,
+            stroke_color=stroke_color,
+            stroke_width=stroke_width,
+            font=font,
+            position_x=position_x,
+            position_y=position_y,
+            words_per_line=words_per_line,
+            
+        )
+
+
+
+        video_generator.generate_video(
+            audio_file=audio_path,
+            video_file=video_path,
+            output_file=output_path,
+            subtitles=subtitles,
+            fps = fps,
+            filter_color = filter_color,
+            filter_transparency = filter_transparency,
+        )
+
+
+def apply_filter_to_video(
+          video_path,
+            output_path,
+            color = "(0,0,0)",
+            transparency = 0.25,
+            magick_binary="./utils/magick",
+        ):
+        magick_binary = os.path.abspath(magick_binary)
+        video_generator = VideoGenerator(magick_binary=magick_binary)
+        video_generator.apply_filter(
+            video_file=video_path,
+            color=color,
+            transparency=transparency,
+            output_file=output_path,
+        )
+
+
+def get_font_list(magick_binary="./utils/magick"):
+    video_generator = VideoGenerator(magick_binary=magick_binary)
+    return video_generator.get_font_list()
+
+
 if __name__ == "__main__":
     try:
         channel_id = 'UCRjReqWC57lY-LMwPQuzI3A'
@@ -136,59 +220,3 @@ if __name__ == "__main__":
     except Exception as e:
         print_exc()
         print(e)
-
-
-
-def generate_short_video(
-        audio_path,
-        video_path,
-        output_path,
-        subtitle_options,
-        magick_binary="./utils/magick",
-        add_audio=True,
-        add_subtitles=True,
-        sample_video = False,
-    ):
-        # Generate the video
-        magick_binary = os.path.abspath(magick_binary)
-        transcript_json = subtitle_options.get("transcript_json", None)
-        screen_size = subtitle_options.get("screen_size", (720 /16 * 9 , 720))
-        font_size = subtitle_options.get("font_size", 35)
-        font_color = subtitle_options.get("font_color", "#FFFFFF")
-        stroke_color = subtitle_options.get("stroke_color", "#000000")
-        stroke_width = subtitle_options.get("stroke_width", 0)
-        font = subtitle_options.get("font", "Liberation-Mono-Bold")
-        position_x = subtitle_options.get("position_x", "center")
-        position_y = subtitle_options.get("position_y", "center")
-        words_per_line = subtitle_options.get("words_per_line", 3)
-
-        fps = 24
-        if sample_video:
-            #transcript = only words_per_line words for sample video
-            transcript_json = transcript_json[:words_per_line]
-            fps = 1
-
-        video_generator = VideoGenerator(magick_binary=magick_binary)
-        subtitles = video_generator.generate_subtitle(
-            transcript_json=transcript_json,
-            screen_size=screen_size,
-            font_size=font_size,
-            font_color=font_color,
-            stroke_color=stroke_color,
-            stroke_width=stroke_width,
-            font=font,
-            position_x=position_x,
-            position_y=position_y,
-            words_per_line=words_per_line,
-        )
-
-
-
-        video_generator.generate_video(
-            audio_file=audio_path,
-            video_file=video_path,
-            output_file=output_path,
-            subtitles=subtitles,
-            fps = fps,
-        )
-

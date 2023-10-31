@@ -45,9 +45,6 @@ class VideoGenerator:
             CompositeVideoClip: A composite video clip containing the subtitle clips.
         """
 
-
-
-
         try:
             # Initialize variables for subtitle generation
             text_clips = []
@@ -93,9 +90,21 @@ class VideoGenerator:
 
 
 
+    def get_font_list(self):
+        """
+        Get a list of available fonts for subtitles.
+        
+        return:
+            list: A list of available fonts.
+        """
+        
+        #text clip . list('font')
+
+        return list(TextClip.list('font'))
 
 
-    def generate_video(self, subtitles, video_file, audio_file, output_file,fps):
+
+    def generate_video(self, subtitles, video_file, audio_file, output_file,fps,filter_color,filter_transparency):
         """
         generate a transcript with optional audio and subtitles to a video.
 
@@ -104,6 +113,7 @@ class VideoGenerator:
             video_file (str): Path to the background video file.
             audio_file (str): Path to the input audio file (None if no audio).
             output_file (str): Path to the output video file.
+            
         """
         try:
             # Load the background video
@@ -146,10 +156,22 @@ class VideoGenerator:
                 bg_video = bg_video.set_audio(audio)
 
             # Composite the video with subtitles
+
+            # text_color = ColorClip(size=screenSize, color=(0,0,0), duration=duration).set_opacity(0.2)
+
+            # filter_clip = ColorClip(size=bg_video.size, color=filter_color, duration=bg_video.duration).set_opacity(filter_transparency)
+
+
+            #convert #000000 to (0,0,0)
+            filter_color = filter_color.replace("#","")
+            filter_color = tuple(int(filter_color[i:i+2], 16) for i in (0, 2, 4))
+
+            subtitles = subtitles.on_color(size=bg_video.size, color=filter_color, col_opacity=filter_transparency,pos=('center','center'))
+            
             video = CompositeVideoClip([bg_video, subtitles])
             ffmpeg_options = "-c:v libx264 -pix_fmt yuv420p"
             # Write the final video
-            video.write_videofile(output_file, fps=fps, threads=8)
+            video.write_videofile(output_file, fps=fps, threads=8,codec = "h264")
             print("Video creation successful")
 
         except Exception as e:
