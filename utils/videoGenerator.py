@@ -11,8 +11,7 @@ class VideoGenerator:
         Args:
             magick_binary (str, optional): Path to the IMAGEMAGICK_BINARY if needed. Default is "./magick".
         """
-        # change_settings({"IMAGEMAGICK_BINARY": magick_binary})
-        pass
+        change_settings({"IMAGEMAGICK_BINARY": magick_binary})
 
     def generate_subtitle(
             self ,
