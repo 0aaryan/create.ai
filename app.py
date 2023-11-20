@@ -4,6 +4,8 @@ from traceback import print_exc
 import tempfile
 import os
 
+import boto3
+from utils.aws import calculate_secret_hash
 
 
 
@@ -11,7 +13,6 @@ st.set_page_config(
     page_title="CREATE.AI",
     page_icon="🎥",
 )
-
 
 
 # Define constants
@@ -41,7 +42,105 @@ st.markdown(
 
 
 
+# Initialize the AWS Cognito client
+cognito_client = boto3.client('cognito-idp')
+client_id = str(os.getenv('COGNITO_CLIENT_ID'))
+client_secret = str(os.getenv('COGNITO_CLIENT_SECRET'))
+
+
+
+
+def signUp():
+    st.subheader("Sign-up")
+    email = st.text_input("Email", key="email")
+    password = st.text_input("Password", type="password")
+    verify_password = st.text_input("Verify Password", type="password")
+    verification_code_sent = False
+    if st.button("Send verification code"):
+        if password != verify_password:
+            st.error("Passwords do not match")
+            return
+        try:
+            secret_hash = calculate_secret_hash(email, client_id, client_secret)
+            response = cognito_client.sign_up(
+                ClientId=client_id,
+                Username=email,  # Use email as the username
+                Password=password,
+                UserAttributes=[
+                    {'Name': 'email', 'Value': email},
+                ],
+                SecretHash=secret_hash,  # Include the SECRET_HASH
+            )
+            st.success("Verification code sent")
+            verification_code_sent = True
+        except Exception as e:
+            error_message = str(e).split(":")[-1]
+            st.error(f"{error_message}")
+
+
+        if verification_code_sent:
+            verification_code = st.text_input("Verification code")
+            if st.button("Verify"):
+                secret_hash = calculate_secret_hash(email, client_id, client_secret)
+                try:
+                    response = cognito_client.confirm_sign_up(
+                        ClientId=client_id,
+                        Username=email,  # Use email as the username
+                        ConfirmationCode=verification_code,
+                        SecretHash=secret_hash  # Include the SECRET_HASH
+                    )
+                    st.success("Signup successful")
+                except Exception as e:
+                    error_message = str(e).split(":")[-1]
+                    st.error(f"{error_message}")
+
+def login():
+        st.subheader("Login")
+        email = st.text_input("Email")
+        password = st.text_input("Password", type="password")
+
+        if st.button("Login"):
+            try:
+                secret_hash = calculate_secret_hash(email, client_id, client_secret)
+                response = cognito_client.initiate_auth(
+                    AuthFlow='USER_PASSWORD_AUTH',
+                    AuthParameters={
+                        'USERNAME': email,  # Use email as the username
+                        'PASSWORD': password,
+                        'SECRET_HASH': secret_hash  # Include the SECRET_HASH
+                    },
+                    ClientId=client_id
+                )
+                st.success("Login successful")
+                st.session_state.login = True
+                st.session_state.username = email
+                st.rerun()
+                # You can store the JWT token and user session here
+            except Exception as e:
+                error_message = str(e).split(":")[-1]
+                st.error(f"{error_message}")
+
+def login_signup():
+    #use toogle to switch between login and signup not radio button use switch
+    menu = st.radio("", ["Login", "Sign-up"],horizontal=True)
+    if menu == "Login":
+        login()
+    elif menu == "Sign-up":
+        signUp()
+
+def logout():
+    #write username and logout button side by side
+    col1, col2 = st.columns(2)
+    col1.write(f"Logged in as {st.session_state.username}")
+    if col2.button("Logout"):
+        st.session_state.login = False
+        st.rerun()
+
+
+
+
 def init_session_state():
+    st.session_state.setdefault('login', False)
     for var in SESSION_STATE_VARS:
         if var not in st.session_state:
             st.session_state[var] = ""
@@ -146,43 +245,6 @@ def background_video_section():
     with col2:
         if st.session_state["bg_video"] != "":
             st.video(st.session_state["bg_video"])
-
-
-
-
-# def subtitle_options_section():
-#     st.title("Step 6: Subtitle Options")
-#     st.subheader("Customize Subtitle Settings")
-#     st.video(st.session_state["bg_video"])
-#     col1, col2 = st.columns(2)
-#     with col1:
-#         st.subheader("Font Settings")
-#         font_size = st.number_input("Font Size", min_value=1, value=35, step=1)
-#         font_color = st.color_picker("Font Color", "#FFFFFF")
-#         st.text("Selected Font Color Hex Code: " + font_color)
-#         stroke_color = st.color_picker("Stroke Color", "#000000")
-#         st.text("Selected Stroke Color Hex Code: " + stroke_color)
-#         stroke_width = st.number_input("Stroke Width", min_value=0, value=0, step=1)
-#         font = st.text_input("Font (e.g., Liberation-Mono-Bold)", "Liberation-Mono-Bold")
-
-
-#     with col2:
-#         st.subheader("Position Settings")
-#         position_x = st.selectbox("Horizontal Position", ["left", "center", "right"], index=1)
-#         position_y = st.selectbox("Vertical Position", ["top", "center", "bottom"], index=1)
-#         words_per_line = st.number_input("Words Per Line", min_value=1, value=3, step=1)
-
-#     # Save the selected subtitle options to the session state
-#     st.session_state["subtitle_options"] = {
-#         "font_size": font_size,
-#         "font_color": font_color,
-#         "stroke_color": stroke_color,
-#         "stroke_width": stroke_width,
-#         "font": font,
-#         "position_x": position_x,
-#         "position_y": position_y,
-#         "words_per_line": words_per_line,
-#     }
 
 def subtitle_options_section():
     st.title("Step 5: Subtitle Options")
@@ -304,20 +366,26 @@ def main():
     st.title("🎥 CREATE.AI 📜")
     st.subheader("AI Powered Video Creation Platform")
 
-    st.markdown("---")
-    sample_scripts_section()
+    if st.session_state.login:
 
-    st.markdown("---")
-    generate_scripts_section()
+        logout()
+        st.markdown("---")
+        sample_scripts_section()
 
-    st.markdown("---")
-    generate_audio_section()
+        st.markdown("---")
+        generate_scripts_section()
 
-    st.markdown("---")
-    background_video_section()
+        st.markdown("---")
+        generate_audio_section()
 
-    st.markdown("---")
-    subtitle_options_section()
+        st.markdown("---")
+        background_video_section()
+
+        st.markdown("---")
+        subtitle_options_section()
+
+    else:
+        login_signup()
 
 if __name__ == "__main__":
     init_session_state()
