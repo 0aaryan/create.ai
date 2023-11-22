@@ -12,3 +12,4 @@ youtube-search-python==1.6.6
 youtube-transcript-api==0.6.1
 Pillow==9.5.0
 opencv-python
+boto3
