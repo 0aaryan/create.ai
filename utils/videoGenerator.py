@@ -3,6 +3,7 @@ from moviepy.config import change_settings
 import json
 from traceback import print_exc
 
+
 class VideoGenerator:
     def __init__(self, magick_binary="./magick"):
         """

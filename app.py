@@ -7,7 +7,21 @@ import os
 import boto3
 from utils.aws import calculate_secret_hash
 
+tmp_dir = './tmp'
+if not os.path.exists(tmp_dir):
+    os.makedirs(tmp_dir)
 
+#absolute path
+tmp_dir = os.path.abspath(tmp_dir)
+
+#set tmp dir for moviepy
+os.environ["IMAGEIO_FFMPEG_TEMP_DIR"] = tmp_dir
+#set TMPDIR for magick
+os.environ["TMPDIR"] = tmp_dir
+#set TMP_DIR for magick
+os.environ["TMP_DIR"] = tmp_dir
+#MAGICK_TEMPORARY_PATH for magick
+os.environ["MAGICK_TEMPORARY_PATH"] = tmp_dir
 
 st.set_page_config(
     page_title="CREATE.AI",
