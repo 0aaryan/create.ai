@@ -43,7 +43,7 @@ st.markdown(
 
 
 # Initialize the AWS Cognito client
-cognito_client = boto3.client('cognito-idp')
+cognito_client = boto3.client('cognito-idp',region_name='ap-south-1')
 client_id = str(os.getenv('COGNITO_CLIENT_ID'))
 client_secret = str(os.getenv('COGNITO_CLIENT_SECRET'))
 
