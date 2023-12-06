@@ -11,11 +11,11 @@
   "links": [
     {
       "icon": "fab fa-github",
-      "url": "https://github.com/0aaryan/create-ai"
+      "url": "https://github.com/0aaryan/create.ai"
     },
     {
       "icon": "fa fa-external-link-alt",
-      "url": "createai.streamlit.app"
+      "url": "https://createai.streamlit.app"
     }
   ]
 }
