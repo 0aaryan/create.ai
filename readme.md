@@ -4,7 +4,7 @@
   "badges": [],
   "content": "Create.ai is an AI-powered video creation platform that automates the process of generating scripts, converting them to audio, and creating videos with customizable subtitles. Whether you're a content creator, marketer, or simply looking to create videos easily, Create.ai can simplify your video production process.",
   "featured": {
-    "link": "https://github.com/0aaryan/create-ai",
+    "link": "https://github.com/0aaryan/create.ai",
     "name": "Repository"
   },
   "image": "https://github.com/0aaryan/create.ai/assets/73797587/09656210-6baa-48da-bb77-9c311670ebaa",
