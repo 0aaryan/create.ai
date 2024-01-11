@@ -379,7 +379,7 @@ def main():
 
     st.title("🎥 CREATE.AI 📜")
     st.subheader("AI Powered Video Creation Platform")
-
+    st.session_state.login = True
     if st.session_state.login:
 
         logout()
